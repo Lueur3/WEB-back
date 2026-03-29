@@ -1,115 +1,104 @@
-<?php
-session_start();
-?>
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <title>LR2</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин электроники — Панель управления</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <div class="container">
+        <h1>Управление товарами</h1>
 
-  <div class="container">
-    <form class="form" action="process.php" method="post">
-      <h2>Добавление товара</h2>
+        <section class="form-section">
+            <h2>Добавить новый товар (POST)</h2>
+            <form action="process.php" method="POST" class="main-form">
+                <div class="form-group">
+                    <label for="name">Наименование</label>
+                    <input type="text" id="name" name="name" placeholder="Напр: iPhone 15" required>
+                </div>
+                <div class="form-group">
+                    <label for="brand">Бренд</label>
+                    <input type="text" id="brand" name="brand" placeholder="Напр: Apple" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Цена (₽)</label>
+                    <input type="number" id="price" name="price" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Категория</label>
+                    <select id="category" name="category">
+                        <option value="Смартфоны">Смартфоны</option>
+                        <option value="Ноутбуки">Ноутбуки</option>
+                        <option value="Аксессуары">Аксессуары</option>
+                        <option value="Мониторы">Мониторы</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Сохранить в CSV</button>
+            </form>
+        </section>
 
-      <div class="form-group">
-        <label for="prod_name">Название товара</label>
-        <input type="text" id="prod_name" name="prod_name" placeholder="Напр: Смартфон" minlength="2" maxlength="20"
-          required>
-      </div>
+        <hr>
 
-      <div class="form-group">
-        <label for="brand">Бренд</label>
-        <input type="text" id="brand" name="brand" placeholder="Напр: Apple" minlength="2" maxlength="20" required>
-      </div>
+        <section class="list-section">
+            <div class="list-header">
+                <h2>Список товаров</h2>
+                <form action="index.php" method="GET" class="search-form">
+                    <input type="text" name="search" placeholder="Поиск по названию..."
+                        value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                    <button type="submit" class="btn-search">Найти (GET)</button>
+                    <?php if (!empty($_GET['search'])): ?>
+                        <a href="index.php" class="btn-reset">Сброс</a>
+                    <?php endif; ?>
+                </form>
+            </div>
 
-      <div class="row">
-        <div class="form-group">
-          <label for="price">Цена</label>
-          <input type="number" id="price" name="price" placeholder="0.00" type="number" min="0.1" step="0.1" required>
-        </div>
-        <div class="form-group">
-          <label for="quantity">Кол-во</label>
-          <input type="number" id="quantity" name="quantity" placeholder="1" type="number" min="1" step="1" required>
-        </div>
-      </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Наименование</th>
+                        <th>Бренд</th>
+                        <th>Цена</th>
+                        <th>Категория</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $file = '/var/www/data/products.csv';
+                    $search = $_GET['search'] ?? '';
 
-      <div class="form-group">
-        <label for="category">Категория</label>
-        <input type="text" id="category" name="category" placeholder="Электроника" minlength="2" maxlength="20"
-          required>
-      </div>
+                    if (file_exists($file)) {
+                        if (($handle = fopen($file, "r")) !== FALSE) {
+                            while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
+                                // Обработка GET-запроса: фильтрация
+                                if (!empty($search)) {
+                                    $found = false;
+                                    if (mb_stripos($data[0], $search) !== false || mb_stripos($data[1], $search) !== false) {
+                                        $found = true;
+                                    }
+                                    if (!$found)
+                                        continue;
+                                }
 
-      <button class="add-btn" type="submit">Добавить товар</button>
-
-      <div style="text-align: center; margin-top: 20px;">
-        <a href="index.php?show" style="color: #007bff; text-decoration: none; font-weight: bold;">Показать все
-          товары</a>
-        <?php if (isset($_GET['show'])): ?>
-          | <a href="index.php" style="color: #666; text-decoration: none;">Скрыть</a>
-        <?php endif; ?>
-      </div>
-
-    </form>
-  </div>
-
-</body>
-
-
-<?php if (isset($_SESSION['show_modal'])): ?>
-  <div id="modal" class="modal-overlay">
-    <div class="modal-content">
-      <p>Товар успешно добавлен в базу</p>
-      <button onclick="document.getElementById('modal').style.display='none'">Отлично</button>
+                                echo "<tr>";
+                                echo "<td>" . htmlspecialchars($data[0]) . "</td>";
+                                echo "<td>" . htmlspecialchars($data[1]) . "</td>";
+                                echo "<td>" . number_format((float) $data[2], 2, '.', ' ') . " ₽</td>";
+                                echo "<td><span class='badge'>" . htmlspecialchars($data[3]) . "</span></td>";
+                                echo "</tr>";
+                            }
+                            fclose($handle);
+                        }
+                    } else {
+                        echo "<tr><td colspan='4' style='text-align:center'>Данные отсутствуют</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </section>
     </div>
-  </div>
-  <?php
-  unset($_SESSION['show_modal']);
-endif;
-if (isset($_GET['show'])) {
-  $filePath = __DIR__ . "/data/products.csv";
-
-  if (file_exists($filePath) && filesize($filePath) > 0) {
-    echo "<div class='container' style='height: auto; padding: 20px;'>";
-    echo "<div class='form' style='max-width: 600px;'>";
-    echo "<h3>Список товаров</h3>";
-    echo "<table style='width:100%; border-collapse: collapse; margin-top: 15px;'>";
-    echo "<tr style='background: #f0f2f5;'>
-                <th style='padding: 10px; border: 1px solid #ddd;'>Товар</th>
-                <th style='padding: 10px; border: 1px solid #ddd;'>Цена</th>
-                <th style='padding: 10px; border: 1px solid #ddd;'>Кол-во</th>
-                <th style='padding: 10px; border: 1px solid #ddd;'>Категория</th>
-              </tr>";
-
-    if (($handle = fopen($filePath, "r")) !== FALSE) {
-      while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-        if (empty($data[0]))
-          continue;
-
-        echo "<tr>";
-        foreach ($data as $cell) {
-          echo "<td style='padding: 10px; border: 1px solid #ddd; text-align: center;'>"
-            . htmlspecialchars($cell) . "</td>";
-        }
-        echo "</tr>";
-      }
-      fclose($handle);
-    }
-    echo "</table>";
-    echo "</div></div>";
-  } else {
-    echo "<p style='text-align:center; color: #666; margin-top: 20px;'>Файл пуст или еще не создан.</p>";
-  }
-}
-
-
-?>
+</body>
 
 </html>

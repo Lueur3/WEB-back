@@ -1,36 +1,24 @@
 <?php
-session_start();
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $product_name = $_POST["prod_name"];
-  $product_price = $_POST["price"];
-  $product_quantity = $_POST["quantity"];
-  $product_category = $_POST["category"];
+    $name = $_POST['name'] ?? '';
+    $brand = $_POST['brand'] ?? '';
+    $price = $_POST['price'] ?? '';
+    $category = $_POST['category'] ?? '';
 
-  $data = array($product_name, $product_price, $product_quantity, $product_category);
+    if (!empty($name) && !empty($brand) && !empty($price) && !empty($category)) {
+        $file = '/var/www/data/products.csv';
 
+        if (!is_dir('/var/www/data')) {
+            mkdir('/var/www/data', 0777, true);
+        }
 
-  $dirPath = __DIR__ . "/data";
-  $filePath = $dirPath . "/products.csv";
+        $data = [$name, $brand, $price, $category];
 
-  if (!is_dir($dirPath)) {
-    mkdir($dirPath, 0777, true);
-  }
-
-  $fd = @fopen($filePath, 'a');
-
-  if (!$fd) {
-    die("Ошибка: Не удалось открыть файл для записи. <a href='index.php'>Вернуться назад</a>");
-  }
-
-  fputcsv($fd, $data, ";");
-
-  fclose($fd);
-
-
-  $_SESSION['show_modal'] = true;
-  header("Location: index.php");
-  exit();
+        $handle = fopen($file, 'a');
+        fputcsv($handle, $data, ";");
+        fclose($handle);
+    }
 }
 
-?>
+header("Location: index.php");
+exit();

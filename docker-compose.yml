@@ -6,6 +6,7 @@ services:
       - "8080:80"
     volumes:
       - ./src:/var/www/html
+      - ./data:/var/www/data
 
   mysql:
     image: mysql:8.0
