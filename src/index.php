@@ -13,7 +13,7 @@
         <h1>Управление товарами</h1>
 
         <section class="form-section">
-            <h2>Добавить новый товар (POST)</h2>
+            <h2>Добавить новый товар</h2>
             <form action="process.php" method="POST" class="main-form">
                 <div class="form-group">
                     <label for="name">Наименование</label>
@@ -36,7 +36,7 @@
                         <option value="Мониторы">Мониторы</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-submit">Сохранить в CSV</button>
+                <button type="submit" class="btn-submit">Сохранить</button>
             </form>
         </section>
 
@@ -48,7 +48,7 @@
                 <form action="index.php" method="GET" class="search-form">
                     <input type="text" name="search" placeholder="Поиск по названию..."
                         value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                    <button type="submit" class="btn-search">Найти (GET)</button>
+                    <button type="submit" class="btn-search">Найти</button>
                     <?php if (!empty($_GET['search'])): ?>
                         <a href="index.php" class="btn-reset">Сброс</a>
                     <?php endif; ?>
@@ -66,33 +66,26 @@
                 </thead>
                 <tbody>
                     <?php
-                    $file = '/var/www/data/products.csv';
+                    require 'db.php';
+
                     $search = $_GET['search'] ?? '';
 
-                    if (file_exists($file)) {
-                        if (($handle = fopen($file, "r")) !== FALSE) {
-                            while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-                                // Обработка GET-запроса: фильтрация
-                                if (!empty($search)) {
-                                    $found = false;
-                                    if (mb_stripos($data[0], $search) !== false || mb_stripos($data[1], $search) !== false) {
-                                        $found = true;
-                                    }
-                                    if (!$found)
-                                        continue;
-                                }
-
-                                echo "<tr>";
-                                echo "<td>" . htmlspecialchars($data[0]) . "</td>";
-                                echo "<td>" . htmlspecialchars($data[1]) . "</td>";
-                                echo "<td>" . number_format((float) $data[2], 2, '.', ' ') . " ₽</td>";
-                                echo "<td><span class='badge'>" . htmlspecialchars($data[3]) . "</span></td>";
-                                echo "</tr>";
-                            }
-                            fclose($handle);
-                        }
+                    if (!empty($search)) {
+                        $stmt = $pdo->prepare("SELECT * FROM products WHERE name LIKE ? OR brand LIKE ?");
+                        $stmt->execute(["%$search%", "%$search%"]);
                     } else {
-                        echo "<tr><td colspan='4' style='text-align:center'>Данные отсутствуют</td></tr>";
+                        $stmt = $pdo->query("SELECT * FROM products");
+                    }
+
+                    $products = $stmt->fetchAll();
+
+                    foreach ($products as $row) {
+                        echo "<tr>";
+                        echo "<td>" . htmlspecialchars($row['name']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['brand']) . "</td>";
+                        echo "<td>" . number_format((float) $row['price'], 2, '.', ' ') . " ₽</td>";
+                        echo "<td><span class='badge'>" . htmlspecialchars($row['category']) . "</span></td>";
+                        echo "</tr>";
                     }
                     ?>
                 </tbody>
