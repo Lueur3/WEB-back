@@ -17,11 +17,9 @@
 
             <form action="/" method="GET" class="search-form"
                 style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
-                <!-- Текстовый поиск -->
                 <input type="text" name="search" placeholder="Поиск по названию/бренду..."
                     value="<?= htmlspecialchars($_GET['search'] ?? '') ?>" style="flex: 1; min-width: 200px;">
 
-                <!-- Фильтр по категории -->
                 <select name="category" style="padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
                     <option value="">Все категории</option>
                     <?php
@@ -33,7 +31,6 @@
                     <?php endforeach; ?>
                 </select>
 
-                <!-- Фильтр по цене -->
                 <input type="number" name="min_price" placeholder="Цена от" step="0.01"
                     value="<?= htmlspecialchars($_GET['min_price'] ?? '') ?>" style="width: 100px;">
 
