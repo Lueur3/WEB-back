@@ -12,19 +12,42 @@ class Product
         $this->db = Database::getConnection();
     }
 
-    public function getAll(?string $search = null): array
+    public function getAll(?array $filters = []): array
     {
-        if ($search) {
-            $stmt = $this->db->prepare("SELECT * FROM products WHERE name LIKE ? OR brand LIKE ? ORDER BY id DESC");
-            $stmt->execute(["%$search%", "%$search%"]);
-            return $stmt->fetchAll();
+        $sql = "SELECT * FROM products WHERE 1=1";
+        $params = [];
+
+
+        if (!empty($filters['search'])) {
+            $sql .= " AND (name LIKE ? OR brand LIKE ?)";
+            $params[] = "%{$filters['search']}%";
+            $params[] = "%{$filters['search']}%";
         }
 
-        $stmt = $this->db->query("SELECT * FROM products ORDER BY id DESC");
+        if (!empty($filters['category'])) {
+            $sql .= " AND category = ?";
+            $params[] = $filters['category'];
+        }
+
+        if (!empty($filters['min_price'])) {
+            $sql .= " AND price >= ?";
+            $params[] = $filters['min_price'];
+        }
+
+        if (!empty($filters['max_price'])) {
+            $sql .= " AND price <= ?";
+            $params[] = $filters['max_price'];
+        }
+
+        $sql .= " ORDER BY id DESC";
+
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function create(array $data): bool
+    public function saveItem(array $data): bool
     {
         $stmt = $this->db->prepare("INSERT INTO products (name, brand, price, category) VALUES (?, ?, ?, ?)");
         return $stmt->execute([

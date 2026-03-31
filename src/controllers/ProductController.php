@@ -13,15 +13,20 @@ class ProductController
 
     public function index(): void
     {
-        $search = $_GET['search'] ?? null;
-        $products = $this->model->getAll($search);
+        $filters = [
+            'search' => $_GET['search'] ?? null,
+            'category' => $_GET['category'] ?? null,
+            'min_price' => $_GET['min_price'] ?? null,
+            'max_price' => $_GET['max_price'] ?? null,
+        ];
 
+        $products = $this->model->getAll($filters);
         require __DIR__ . '/../views/index.php';
     }
 
-    public function create(): void
+    public function add_item(): void
     {
-        require __DIR__ . '/../views/create.php';
+        require __DIR__ . '/../views/addItem.php';
     }
 
     public function store(): void
@@ -34,7 +39,7 @@ class ProductController
                 'category' => $_POST['category'] ?? ''
             ];
 
-            if ($this->model->create($data)) {
+            if ($this->model->saveItem($data)) {
                 header('Location: /');
                 exit();
             }
