@@ -4,11 +4,11 @@ require_once __DIR__ . '/../models/Product.php';
 
 class ProductController
 {
-    private Product $model;
+    private Product $productModel;
 
     public function __construct()
     {
-        $this->model = new Product();
+        $this->productModel = new Product();
     }
 
     public function index(): void
@@ -20,13 +20,13 @@ class ProductController
             'max_price' => $_GET['max_price'] ?? null,
         ];
 
-        $products = $this->model->getAll($filters);
-        require __DIR__ . '/../views/index.php';
+        $products = $this->productModel->getAll($filters);
+        require __DIR__ . '/../views/products/index.php';
     }
 
-    public function add_item(): void
+    public function create(): void
     {
-        require __DIR__ . '/../views/addItem.php';
+        require __DIR__ . '/../views/products/create.php';
     }
 
     public function store(): void
@@ -36,16 +36,14 @@ class ProductController
                 'name' => $_POST['name'] ?? '',
                 'brand' => $_POST['brand'] ?? '',
                 'price' => $_POST['price'] ?? 0,
-                'category' => $_POST['category'] ?? ''
+                'category' => $_POST['category'] ?? '',
+                'quantity' => $_POST['quantity'] ?? 0
             ];
 
-            if ($this->model->saveItem($data)) {
+            if ($this->productModel->create($data)) {
                 header('Location: /');
                 exit();
             }
-
-            http_response_code(500);
-            echo "Ошибка при сохранении данных.";
         }
     }
 }
