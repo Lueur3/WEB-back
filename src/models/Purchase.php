@@ -30,29 +30,22 @@ class Purchase
 
     public function makePurchase(int $clientId, int $productId, int $count): bool
     {
-        try {
-            $this->db->beginTransaction();
+        $stmt = $this->db->prepare("SELECT quantity FROM products WHERE id = ?");
+        $stmt->execute([$productId]);
+        $product = $stmt->fetch();
 
-            $stmt = $this->db->prepare("SELECT quantity FROM products WHERE id = ? FOR UPDATE");
-            $stmt->execute([$productId]);
-            $product = $stmt->fetch();
-
-            if (!$product || $product['quantity'] < $count) {
-                $this->db->rollBack();
-                return false;
-            }
-
-            $stmt = $this->db->prepare("UPDATE products SET quantity = quantity - ? WHERE id = ?");
-            $stmt->execute([$count, $productId]);
-
-            $stmt = $this->db->prepare("INSERT INTO purchases (client_id, product_id, count) VALUES (?, ?, ?)");
-            $stmt->execute([$clientId, $productId, $count]);
-
-            $this->db->commit();
-            return true;
-        } catch (Exception $e) {
-            $this->db->rollBack();
+        if (!$product || $product['quantity'] < $count) {
             return false;
         }
+
+        $updateStmt = $this->db->prepare("UPDATE products SET quantity = quantity - ? WHERE id = ?");
+        $updateResult = $updateStmt->execute([$count, $productId]);
+
+        if (!$updateResult) {
+            return false;
+        }
+
+        $insertStmt = $this->db->prepare("INSERT INTO purchases (client_id, product_id, count) VALUES (?, ?, ?)");
+        return $insertStmt->execute([$clientId, $productId, $count]);
     }
 }
