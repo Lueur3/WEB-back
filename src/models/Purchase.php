@@ -34,7 +34,7 @@ class Purchase
         $stmt->execute([$productId]);
         $product = $stmt->fetch();
 
-        if (!$product || $product['quantity'] < $count) {
+        if (!$product || $product['quantity'] < $count || $count == 0) {
             return false;
         }
 
