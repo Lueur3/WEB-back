@@ -3,25 +3,31 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>История покупок</title>
+    <title>Мои покупки</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-    <div class="container">
-        <nav>
-            <a href="/">Товары</a> |
-            <a href="/purchases">История покупок</a>
-        </nav>
-        <h1>Журнал продаж</h1>
-        <a href="/purchases/create" class="btn-search"
-            style="text-decoration: none; background-color: #10b981;">Оформить продажу</a>
+    <header class="site-header">
+        <div class="container header-flex">
+            <nav class="main-nav">
+                <a href="/" class="nav-link">Каталог</a>
+                <a href="/purchases" class="nav-link active">Мои покупки</a>
+            </nav>
+            <div class="auth-nav">
+                <a href="/profile" class="nav-link">👤 <?= htmlspecialchars($_SESSION['username']) ?></a>
+                <a href="/logout" class="btn-logout">Выход</a>
+            </div>
+        </div>
+    </header>
 
-        <table style="margin-top: 20px;">
+    <main class="container">
+        <h1><?= $_SESSION['role'] === 'admin' ? 'Все продажи системы' : 'Мои покупки' ?></h1>
+        <table class="data-table">
             <thead>
                 <tr>
                     <th>Дата</th>
-                    <th>Клиент</th>
+                    <th>Покупатель</th>
                     <th>Товар</th>
                     <th>Кол-во</th>
                     <th>Сумма</th>
@@ -34,18 +40,18 @@
                             <td><?= htmlspecialchars($p['purchase_date']) ?></td>
                             <td><?= htmlspecialchars($p['client_name']) ?></td>
                             <td><?= htmlspecialchars($p['product_name']) ?></td>
-                            <td><?= (int) $p['count'] ?></td>
-                            <td><?= number_format((float) $p['total_price'], 2, '.', ' ') ?> ₽</td>
+                            <td><?= (int) $p['count'] ?> шт.</td>
+                            <td class="price-text"><?= number_format((float) $p['total_price'], 2, '.', ' ') ?> ₽</td>
                         </tr>
-                    <?php endforeach; ?>
+                  <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" style="text-align:center">Продаж пока не было</td>
+                        <td colspan="5" class="empty-msg">История пуста</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
         </table>
-    </div>
+    </main>
 </body>
 
 </html>

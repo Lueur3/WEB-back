@@ -3,24 +3,41 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Каталог товаров</title>
+    <title>Каталог электроники</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-    <div class="container">
-        <nav>
-            <a href="/">Товары</a> |
-            <a href="/purchases">История покупок</a>
-        </nav>
-        <h1>Список товаров</h1>
+    <header class="site-header">
+        <div class="container header-flex">
+            <nav class="main-nav">
+                <a href="/" class="nav-link active">Каталог</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="/purchases" class="nav-link">Мои покупки</a>
+                <?php endif; ?>
+            </nav>
+            <div class="auth-nav">
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="/profile" class="nav-link">👤 <?= htmlspecialchars($_SESSION['username']) ?></a>
+                    <a href="/logout" class="btn-logout">Выход</a>
+                <?php else: ?>
+                    <a href="/login" class="nav-link">Вход</a>
+                    <a href="/register" class="btn-reg">Регистрация</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </header>
 
-        <div class="list-header">
-            <a href="/create" class="btn-search" style="text-decoration: none; background-color: #2563eb;">+ Добавить
-                товар</a>
+    <main class="container">
+        <div class="page-header">
+            <h1>Доступные товары</h1>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <a href="/create" class="btn-add">+ Добавить товар</a>
+            <?php endif; ?>
+        </div>
 
-            <form action="/" method="GET" class="search-form"
-                style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
+        <section class="filter-section">
+            <form action="/" method="GET" class="filter-form">
                 <input type="text" name="search" placeholder="Поиск..."
                     value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
                 <select name="category">
@@ -34,40 +51,52 @@
                     value="<?= htmlspecialchars($_GET['min_price'] ?? '') ?>">
                 <input type="number" name="max_price" placeholder="Цена до"
                     value="<?= htmlspecialchars($_GET['max_price'] ?? '') ?>">
-                <button type="submit" class="btn-search">Применить</button>
+                <button type="submit" class="btn-apply">Применить</button>
                 <a href="/" class="btn-reset">Сбросить</a>
             </form>
-        </div>
+        </section>
 
-        <table>
+        <table class="data-table">
             <thead>
                 <tr>
-                    <th>Наименование</th>
+                    <th>Товар</th>
                     <th>Бренд</th>
                     <th>Цена</th>
                     <th>Категория</th>
-                    <th>В наличии</th>
+                    <th>Наличие</th>
+                    <th>Действие</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (!empty($products)): ?>
                     <?php foreach ($products as $product): ?>
                         <tr>
-                            <td><?= htmlspecialchars($product['name']) ?></td>
+                            <td><strong><?= htmlspecialchars($product['name']) ?></strong></td>
                             <td><?= htmlspecialchars($product['brand']) ?></td>
-                            <td><?= number_format((float) $product['price'], 2, '.', ' ') ?> ₽</td>
+                            <td class="price-text"><?= number_format((float) $product['price'], 2, '.', ' ') ?> ₽</td>
                             <td><span class="badge"><?= htmlspecialchars($product['category']) ?></span></td>
                             <td><?= (int) $product['quantity'] ?> шт.</td>
+                            <td>
+                                <?php if (isset($_SESSION['user_id'])): ?>
+                                    <?php if ($product['quantity'] > 0): ?>
+                                        <a href="/purchases/create?product_id=<?= $product['id'] ?>" class="btn-buy">Купить</a>
+                                    <?php else: ?>
+                                        <span class="out-of-stock">Нет в наличии</span>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <small><a href="/login">Войдите для покупки</a></small>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" style="text-align:center">Товары не найдены</td>
+                        <td colspan="6" class="empty-msg">Товары не найдены</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
         </table>
-    </div>
+    </main>
 </body>
 
 </html>

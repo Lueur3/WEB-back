@@ -3,12 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Добавить товар</title>
+    <title>Добавление товара</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-    <div class="container">
+    <div class="container form-page">
         <h1>Новый товар</h1>
         <form action="/store" method="POST" class="main-form">
             <div class="form-group">
@@ -20,11 +20,11 @@
                 <input type="text" name="brand" required>
             </div>
             <div class="form-group">
-                <label>Цена</label>
+                <label>Цена (₽)</label>
                 <input type="number" name="price" step="0.01" required>
             </div>
             <div class="form-group">
-                <label>Количество на складе</label>
+                <label>Количество</label>
                 <input type="number" name="quantity" required min="0">
             </div>
             <div class="form-group">
@@ -36,10 +36,9 @@
                     <option value="Мониторы">Мониторы</option>
                 </select>
             </div>
-            <button type="submit" class="btn-submit">Сохранить</button>
+            <button type="submit" class="btn-primary">Сохранить товар</button>
+            <a href="/" class="btn-link">Назад в каталог</a>
         </form>
-        <br>
-        <a href="/">Назад</a>
     </div>
 </body>
 

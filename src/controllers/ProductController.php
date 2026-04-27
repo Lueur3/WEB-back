@@ -26,11 +26,20 @@ class ProductController
 
     public function create(): void
     {
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+            header('Location: /');
+            exit();
+        }
         require __DIR__ . '/../views/products/create.php';
     }
 
     public function store(): void
     {
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+            header('Location: /');
+            exit();
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'name' => $_POST['name'] ?? '',
