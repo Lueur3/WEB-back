@@ -30,7 +30,6 @@ body {
     padding: 0 20px;
 }
 
-/* Шапка и навигация */
 .site-header {
     background-color: var(--header-bg);
     padding: 1rem 0;
@@ -62,7 +61,7 @@ body {
     align-items: center;
 }
 
-/* Кнопки */
+
 .btn-primary, .btn-add, .btn-buy, .btn-apply {
     display: inline-block;
     background-color: var(--primary);
@@ -101,7 +100,7 @@ body {
     font-size: 0.85rem;
 }
 
-/* Стили для страниц авторизации */
+
 .auth-body {
     display: flex;
     justify-content: center;
@@ -128,7 +127,7 @@ body {
     color: var(--text-muted);
 }
 
-/* Формы */
+
 .form-group {
     margin-bottom: 1.2rem;
 }
@@ -156,7 +155,7 @@ body {
     border: 1px solid var(--border);
 }
 
-/* Фильтры */
+
 .filter-section {
     background: white;
     padding: 1.5rem;
@@ -184,7 +183,7 @@ body {
     font-size: 0.85rem;
 }
 
-/* Таблицы */
+
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -230,7 +229,7 @@ body {
     font-weight: 500;
 }
 
-/* Инфо-карточки */
+
 .info-card {
     background: white;
     padding: 1.5rem;
@@ -258,7 +257,7 @@ body {
     margin-bottom: 1.5rem;
 }
 
-/* Дополнительные стили для центрирования формы покупки */
+
 .main-form-container {
     display: flex;
     justify-content: center;
@@ -289,7 +288,6 @@ body {
     font-size: 1.1rem;
 }
 
-/* Стили кнопки покупки */
 .btn-buy {
     background-color: var(--success);
     color: white;
